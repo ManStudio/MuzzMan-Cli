@@ -4,7 +4,7 @@ use muzzman_daemon::prelude::*;
 #[derive(Debug, Parser)]
 pub struct Cli {
     #[command(subcommand)]
-    command: Option<Command>,
+    command: Command,
 }
 
 #[derive(Debug, Subcommand)]
@@ -20,12 +20,19 @@ pub enum Command {
     GetLocation {
         location_id: String,
     },
+    #[command(about = "Create a element with the url and try to resolv")]
     Resolv {
         url: String,
         name: Option<String>,
         location: Option<String>,
         #[arg(short, long)]
-        show_progress: bool,
+        progress: bool,
+    },
+    GetElement {
+        element_id: String,
+    },
+    DestroyElement {
+        element_id: String,
     },
 }
 
@@ -41,7 +48,7 @@ fn main() {
         return;
     }
 
-    let Some(command) = cli.command else { return };
+    let command = cli.command;
     match command {
         Command::LoadModule { name, index } => {
             let mut modules = get_modules();
@@ -78,13 +85,11 @@ fn main() {
                 let default_desc = module.get_default_desc().unwrap();
                 let proxy = module.get_proxy().unwrap();
 
-                println!(
-                    r#"Name: {name}
-Desc: {desc}
-DefaultName: {default_name}
-DefaultDesc: {default_desc}
-Proxy: {proxy}"#
-                );
+                println!("Name: {name}");
+                println!("Desc: {desc}");
+                println!("DefaultName: {default_name}");
+                println!("DefaultDesc: {default_desc}");
+                println!("Proxy: {proxy}");
                 return;
             }
             for (i, module) in modules.iter().enumerate() {
@@ -142,7 +147,7 @@ Proxy: {proxy}"#
             url,
             name,
             location,
-            show_progress,
+            progress: show_progress,
         } => {
             let location = if let Some(location_id) = location {
                 let id: LocationId =
@@ -186,6 +191,41 @@ Proxy: {proxy}"#
             } else {
                 println!("{id}");
             }
+        }
+        Command::GetElement { element_id } => {
+            let id: ElementId = serde_json::from_str(&element_id).expect("Invalid element id!");
+            let element = session.get_element_ref(&id).unwrap();
+
+            let name = element.get_name().unwrap();
+            let desc = element.get_desc().unwrap();
+            let meta = element.get_meta().unwrap();
+            let element_data = element.get_element_data().unwrap();
+            let module_data = element.get_module_data().unwrap();
+            let info = element.get_element_info().unwrap();
+            let enabled = element.is_enabled().unwrap();
+            let data = element.get_data().unwrap();
+            let progress = element.get_progress().unwrap();
+
+            let element_data = serde_json::to_string(&element_data).unwrap();
+            let module_data = serde_json::to_string(&module_data).unwrap();
+            let info = serde_json::to_string(&info).unwrap();
+            let data = serde_json::to_string(&data).unwrap();
+
+            println!("Name: {name}");
+            println!("Desc: {desc}");
+            println!("Meta: {meta}");
+            println!("Progress: {progress}");
+            println!("Enabled: {enabled}");
+            println!("Element Data: {element_data}\n");
+            println!("Module Data: {module_data}\n");
+            println!("Info: {info}\n");
+            println!("Data: {data}");
+        }
+        Command::DestroyElement { element_id } => {
+            let id: ElementId = serde_json::from_str(&element_id).expect("Invalid element id!");
+            let element = session.get_element_ref(&id).unwrap();
+
+            println!("Result: {:?}", element.destroy());
         }
     }
 }
