@@ -199,6 +199,7 @@ fn main() {
             let name = element.get_name().unwrap();
             let desc = element.get_desc().unwrap();
             let meta = element.get_meta().unwrap();
+            let url = element.get_url().unwrap();
             let element_data = element.get_element_data().unwrap();
             let module_data = element.get_module_data().unwrap();
             let info = element.get_element_info().unwrap();
@@ -214,6 +215,9 @@ fn main() {
             println!("Name: {name}");
             println!("Desc: {desc}");
             println!("Meta: {meta}");
+            if let Some(url) = url {
+                println!("Url: {url}");
+            }
             println!("Progress: {progress}");
             println!("Enabled: {enabled}");
             println!("Element Data: {element_data}\n");
