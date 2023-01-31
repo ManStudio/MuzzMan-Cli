@@ -1,5 +1,3 @@
-use std::path::{Path, PathBuf};
-
 use clap::{Parser, Subcommand};
 use muzzman_daemon::prelude::*;
 
@@ -36,6 +34,12 @@ fn main() {
 
     let session = DaemonSession::new().expect("Daemon is not started!");
     let session = session.create_session();
+
+    // Check for the daemon
+    if let Err(SessionError::ServerTimeOut) = session.get_default_location() {
+        eprintln!("Daemon is not started!");
+        return;
+    }
 
     let Some(command) = cli.command else { return };
     match command {
@@ -159,7 +163,8 @@ Proxy: {proxy}"#
             data.add("url", Value::from(Type::String(url.clone())));
             element.set_element_data(data).unwrap();
             if !element.resolv_module().unwrap() {
-                element.destroy().unwrap();
+                // The ERow Cannot be transfered to the network and is never needed!
+                let _ = element.destroy();
                 eprintln!("Cannot resolv element");
                 return;
             }
