@@ -20,6 +20,13 @@ pub enum Command {
     GetLocation {
         location_id: String,
     },
+    CreateLocation {
+        location_id: String,
+        name: String,
+    },
+    DestroyLocation {
+        location_id: String,
+    },
     #[command(about = "Create a element with the url and try to resolv")]
     Resolv {
         url: String,
@@ -230,6 +237,18 @@ fn main() {
             let element = session.get_element_ref(&id).unwrap();
 
             println!("Result: {:?}", element.destroy());
+        }
+        Command::CreateLocation { location_id, name } => {
+            let id: LocationId = serde_json::from_str(&location_id).expect("Invalid location id");
+            let res = session
+                .create_location(&name, &id)
+                .expect("Cannot create location!");
+            let id = serde_json::to_string(&res.id()).unwrap();
+            println!("{id}");
+        }
+        Command::DestroyLocation { location_id } => {
+            let id: LocationId = serde_json::from_str(&location_id).expect("Invalid location id");
+            let res = session.destroy_location(id);
         }
     }
 }
