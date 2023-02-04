@@ -171,9 +171,7 @@ fn main() {
             };
 
             let element = location.create_element(&name).unwrap();
-            let mut data = Data::default();
-            data.add("url", Value::from(Type::String(url.clone())));
-            element.set_element_data(data).unwrap();
+            element.set_url(Some(url.clone())).unwrap();
             if !element.resolv_module().unwrap() {
                 // The ERow Cannot be transfered to the network and is never needed!
                 let _ = element.destroy();
