@@ -179,9 +179,9 @@ fn main() {
                 return;
             }
             element.init().unwrap();
-            let mut data = element.get_element_data().unwrap();
+            let mut data = element.get_settings().unwrap();
             data.set("url", Type::String(url));
-            element.set_element_data(data).unwrap();
+            element.set_settings(data).unwrap();
             element.set_enabled(true, None).unwrap();
             let id = serde_json::to_string(&element.id()).unwrap();
             if show_progress {
@@ -205,21 +205,21 @@ fn main() {
             let desc = element.get_desc().unwrap();
             let meta = element.get_meta().unwrap();
             let url = element.get_url().unwrap();
-            let element_data = element.get_element_data().unwrap();
-            let module_data = element.get_module_data().unwrap();
-            let info = element.get_element_info().unwrap();
+            let element_data = element.get_settings().unwrap();
+            let module_data = element.get_module_settings().unwrap();
             let enabled = element.is_enabled().unwrap();
             let data = element.get_data().unwrap();
             let progress = element.get_progress().unwrap();
+            let status = element.get_status_msg().unwrap();
 
             let element_data = serde_json::to_string(&element_data).unwrap();
             let module_data = serde_json::to_string(&module_data).unwrap();
-            let info = serde_json::to_string(&info).unwrap();
             let data = serde_json::to_string(&data).unwrap();
 
             println!("Name: {name}");
             println!("Desc: {desc}");
             println!("Meta: {meta}");
+            println!("Status: {status}");
             if let Some(url) = url {
                 println!("Url: {url}");
             }
@@ -227,7 +227,6 @@ fn main() {
             println!("Enabled: {enabled}");
             println!("Element Data: {element_data}\n");
             println!("Module Data: {module_data}\n");
-            println!("Info: {info}\n");
             println!("Data: {data}");
         }
         Command::DestroyElement { element_id } => {
